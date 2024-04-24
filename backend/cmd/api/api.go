@@ -1,6 +1,7 @@
 package api
 
 import (
+	"io"
 	"log"
 	"net/http"
 
@@ -67,6 +68,15 @@ func (api *APIServer) registerRoutes() {
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(cos))
+	})
+
+	router.Post("/update_radius", func(w http.ResponseWriter, r *http.Request) {
+		radius, _ := io.ReadAll(r.Body)
+		r.Body.Close()
+
+		api.rchan <- lib.StringToFloat(string(radius))
+		log.Println("radius updated samples are scaled up now")
+
 	})
 }
 
