@@ -113,7 +113,13 @@ const Circle: React.FC = () => {
 
   return (
     <div className="w-screen h-screen flex items-center justify-center space-x-4">
-      <canvas ref={canvasRef} width={400} height={400} />;
+      <canvas
+        ref={canvasRef}
+        width={700}
+        height={700}
+        className="border-2 border-black"
+      />
+      ;
     </div>
   );
 };
