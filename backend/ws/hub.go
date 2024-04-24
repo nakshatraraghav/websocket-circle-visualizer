@@ -1,5 +1,7 @@
 package ws
 
+import "github.com/nakshatraraghav/hashed-tokens-assignment/backend/lib"
+
 type Hub struct {
 	clients map[*Client]bool
 
@@ -17,7 +19,31 @@ func NewHub() *Hub {
 	}
 }
 
-func (hub *Hub) RunHub() {
+func (hub *Hub) BroadcaseSinCosSamples(sinc, cosc chan float64) {
+	for {
+		var msg []byte
+
+		select {
+		case sin := <-sinc:
+			msg = []byte("sin:" + lib.FloatToString(sin))
+		case cos := <-cosc:
+			msg = []byte("cos:" + lib.FloatToString(cos))
+		}
+
+		for client := range hub.clients {
+			select {
+			case client.send <- msg:
+			default:
+				close(client.send)
+				delete(hub.clients, client)
+			}
+		}
+	}
+}
+
+func (hub *Hub) RunHub(sinc, cosc chan float64) {
+	go hub.BroadcaseSinCosSamples(sinc, cosc)
+
 	for {
 		select {
 		case client := <-hub.register:
@@ -29,6 +55,7 @@ func (hub *Hub) RunHub() {
 				close(client.send)
 			}
 		case message := <-hub.broadcast:
+
 			for client := range hub.clients {
 				select {
 				case client.send <- message:

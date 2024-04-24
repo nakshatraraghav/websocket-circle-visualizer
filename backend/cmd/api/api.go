@@ -26,11 +26,12 @@ func NewAPIServer() *APIServer {
 	router := chi.NewRouter()
 
 	hub := ws.NewHub()
-	go hub.RunHub()
 
 	sin := make(chan float64, 1)
 	cos := make(chan float64, 1)
 	rchan := make(chan float64, 1)
+
+	go hub.RunHub(sin, cos)
 
 	go lib.SinSampleGenerator(sin, rchan, 1)
 	go lib.CosSampleGenerator(cos, rchan, 1)
@@ -87,8 +88,6 @@ func (api *APIServer) registerRoutes() {
 	})
 
 	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("REQUEST REACHED HERE")
-
 		ws.ServeWebSocket(api.hub, w, r)
 	})
 }
