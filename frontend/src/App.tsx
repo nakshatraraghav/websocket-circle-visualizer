@@ -1,5 +1,11 @@
+import Circle from "./components/circle";
+
 function App() {
-  return <div>hello</div>;
+  return (
+    <div>
+      <Circle />
+    </div>
+  );
 }
 
 export default App;
