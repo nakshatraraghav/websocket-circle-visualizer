@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/nakshatraraghav/hashed-tokens-assignment/backend/lib"
 )
 
@@ -38,6 +39,39 @@ func NewAPIServer() *APIServer {
 }
 
 func (api *APIServer) StartServer() error {
+
+	api.registerMiddlewares()
+	api.registerRoutes()
+
 	log.Println("server started on localhost:3000")
 	return http.ListenAndServe(api.addr, api.router)
+}
+
+func (api *APIServer) registerRoutes() {
+	router := api.router
+
+	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
+	router.Get("/sin", func(w http.ResponseWriter, r *http.Request) {
+		sin := lib.FloatToString(<-api.sin)
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(sin))
+	})
+
+	router.Get("/cos", func(w http.ResponseWriter, r *http.Request) {
+		cos := lib.FloatToString(<-api.cos)
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(cos))
+	})
+}
+
+func (api *APIServer) registerMiddlewares() {
+	router := api.router
+
+	router.Use(middleware.Logger)
 }
